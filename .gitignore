@@ -1,0 +1,15 @@
+# Gradle files
+.gradle/
+build/
+app/build/
+
+# Local configuration file (contains API keys and local SDK paths)
+local.properties
+
+# Android Studio & IDE
+.idea/
+*.iml
+.navigation/
+
+# Log files
+*.log

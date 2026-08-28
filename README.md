@@ -73,14 +73,13 @@ Using AI assistance helped adhere strictly to modern Android engineering practic
 ### Steps to Run:
 1. **Clone the Repository:**
    ```bash
-   git clone https://github.com/<your-username>/GeoPulse.git
+   git clone https://github.com/mhshobuj/GeoPulse.git
    cd GeoPulse
    ```
 
 2. **Configure SDK Location & Google Maps API Key:**
    Create or open `local.properties` in the project root directory and add your Android SDK path and your Google Maps API Key:
    ```properties
-   sdk.dir=C\:\\Users\\USER\\AppData\\Local\\Android\\Sdk
    MAPS_API_KEY=YOUR_GOOGLE_MAPS_API_KEY_HERE
    ```
    > 🔑 **API Key Security:** `local.properties` is explicitly ignored by `.gitignore` so your private Google Maps API key will never be committed to Git. Gradle automatically injects `MAPS_API_KEY` into `AndroidManifest.xml` at build time.
