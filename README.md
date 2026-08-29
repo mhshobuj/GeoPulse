@@ -108,7 +108,5 @@ Using AI assistance helped adhere strictly to modern Android engineering practic
 | Splash Screen | Attendance Screen (In Range) |
 | :---: | :---: |
 | ![Splash Screen](screenshots/splash.png) | ![Attendance Screen In Range](screenshots/in_range.png) |
-"# GeoPulse"
 | Attendance Screen (Out of Range) | Attendance Logs |
-| :---: | :---: |
 | ![Attendance Screen Out of Range](screenshots/out_of_range.png) | ![Attendance Screen Logs](screenshots/attendence_logs.png) |
