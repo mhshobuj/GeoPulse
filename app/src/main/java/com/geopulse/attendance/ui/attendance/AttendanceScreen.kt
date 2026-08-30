@@ -94,6 +94,7 @@ fun AttendanceScreen(
             item {
                 DistanceGaugeView(
                     geofenceStatus = uiState.geofenceStatus,
+                    isLocating = uiState.isLocating,
                     radiusMeters = uiState.geofenceRadiusMeters
                 )
             }

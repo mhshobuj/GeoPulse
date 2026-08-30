@@ -32,6 +32,19 @@ class LocationClientImpl @Inject constructor(
             return@callbackFlow
         }
 
+        // Try sending last known location immediately for instant UI responsiveness
+        client.lastLocation.addOnSuccessListener { lastLoc ->
+            lastLoc?.let {
+                trySend(
+                    LocationCoordinates(
+                        latitude = it.latitude,
+                        longitude = it.longitude,
+                        timestamp = it.time
+                    )
+                )
+            }
+        }
+
         val request = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, intervalMs)
             .setMinUpdateIntervalMillis(intervalMs / 2)
             .build()

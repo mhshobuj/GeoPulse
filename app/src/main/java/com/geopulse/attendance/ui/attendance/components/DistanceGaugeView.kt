@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,6 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.geopulse.attendance.domain.model.GeofenceStatus
+import com.geopulse.attendance.ui.theme.BlueAccent
 import com.geopulse.attendance.ui.theme.StatusGreen
 import com.geopulse.attendance.ui.theme.StatusGreenBg
 import com.geopulse.attendance.ui.theme.StatusRed
@@ -38,6 +40,7 @@ import com.geopulse.attendance.ui.theme.TextSecondary
 @Composable
 fun DistanceGaugeView(
     geofenceStatus: GeofenceStatus,
+    isLocating: Boolean = false,
     radiusMeters: Double = 50.0,
     modifier: Modifier = Modifier
 ) {
@@ -51,18 +54,21 @@ fun DistanceGaugeView(
     val isUnconfigured = geofenceStatus is GeofenceStatus.Unconfigured
 
     val accentColor = when {
+        isLocating -> BlueAccent
         isUnconfigured -> TextLight
         isInRange -> StatusGreen
         else -> StatusRed
     }
 
     val badgeBgColor = when {
+        isLocating -> Color(0xFFEBF3FC)
         isUnconfigured -> Color(0xFFF1F5F9)
         isInRange -> StatusGreenBg
         else -> StatusRedBg
     }
 
     val badgeText = when {
+        isLocating -> "LOCATING..."
         isUnconfigured -> "NOT SET"
         isInRange -> "IN RANGE"
         else -> "OUT OF RANGE"
@@ -85,40 +91,61 @@ fun DistanceGaugeView(
                     style = Stroke(width = 8.dp.toPx())
                 )
 
-                // Progress Indicator Arc
-                val sweepAngle = if (distance != null) {
-                    val progress = (1.0 - (distance / (radiusMeters * 4))).coerceIn(0.05, 1.0)
-                    (progress * 360).toFloat()
-                } else {
-                    0f
-                }
+                if (!isLocating) {
+                    // Progress Indicator Arc
+                    val sweepAngle = if (distance != null) {
+                        val progress = (1.0 - (distance / (radiusMeters * 4))).coerceIn(0.05, 1.0)
+                        (progress * 360).toFloat()
+                    } else {
+                        0f
+                    }
 
-                drawArc(
-                    color = accentColor,
-                    startAngle = -90f,
-                    sweepAngle = sweepAngle,
-                    useCenter = false,
-                    style = Stroke(width = 8.dp.toPx(), cap = StrokeCap.Round)
-                )
+                    drawArc(
+                        color = accentColor,
+                        startAngle = -90f,
+                        sweepAngle = sweepAngle,
+                        useCenter = false,
+                        style = Stroke(width = 8.dp.toPx(), cap = StrokeCap.Round)
+                    )
+                }
             }
 
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = if (distance != null) "${distance.toInt()}m" else "--",
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextPrimary
+            if (isLocating) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(32.dp),
+                        color = BlueAccent,
+                        strokeWidth = 3.dp
                     )
-                )
-                Text(
-                    text = "AWAY",
-                    style = MaterialTheme.typography.labelSmall.copy(
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextLight
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = "FETCHING",
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = BlueAccent
+                        )
                     )
-                )
+                }
+            } else {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = if (distance != null) "${distance.toInt()}m" else "--",
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = TextPrimary
+                        )
+                    )
+                    Text(
+                        text = "AWAY",
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = TextLight
+                        )
+                    )
+                }
             }
         }
 

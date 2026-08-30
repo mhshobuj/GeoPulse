@@ -49,14 +49,24 @@ class AttendanceViewModel @Inject constructor(
     }
 
     private fun handlePermissionGranted() {
-        _uiState.update { it.copy(hasPermission = true) }
+        _uiState.update { it.copy(hasPermission = true, isLocating = true) }
         startObservingLocationUpdates()
+        autoFetchInitialLocation()
+    }
+
+    private fun autoFetchInitialLocation() {
+        viewModelScope.launch {
+            if (_uiState.value.officeLocation == null) {
+                setOfficeLocationUseCase()
+            }
+        }
     }
 
     private fun handlePermissionDenied() {
         _uiState.update {
             it.copy(
                 hasPermission = false,
+                isLocating = false,
                 userMessage = "Location permission is required for geofenced attendance."
             )
         }
@@ -67,14 +77,21 @@ class AttendanceViewModel @Inject constructor(
         locationUpdatesJob = viewModelScope.launch {
             observeCurrentLocationUseCase()
                 .catch { e ->
-                    _uiState.update { it.copy(userMessage = e.message ?: "Failed to get location updates") }
+                    _uiState.update {
+                        it.copy(
+                            isLocating = false,
+                            userMessage = e.message ?: "Failed to get location updates"
+                        )
+                    }
                 }
                 .collect { location ->
                     _uiState.update { currentState ->
-                        val status = calculateDistanceUseCase(location, currentState.officeLocation)
+                        val office = currentState.officeLocation
+                        val status = calculateDistanceUseCase(location, office)
                         currentState.copy(
                             currentLocation = location,
-                            geofenceStatus = status
+                            geofenceStatus = status,
+                            isLocating = false
                         )
                     }
                 }

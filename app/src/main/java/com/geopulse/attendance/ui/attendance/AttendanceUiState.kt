@@ -11,6 +11,7 @@ data class AttendanceUiState(
     val geofenceRadiusMeters: Double = 50.0,
     val isSettingLocation: Boolean = false,
     val isMarkingAttendance: Boolean = false,
+    val isLocating: Boolean = false,
     val userMessage: String? = null,
     val attendanceHistory: List<AttendanceRecord> = emptyList(),
     val hasPermission: Boolean = false
