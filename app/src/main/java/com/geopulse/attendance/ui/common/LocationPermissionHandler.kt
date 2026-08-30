@@ -44,6 +44,7 @@ fun LocationPermissionHandler(
     val lifecycleOwner = LocalLifecycleOwner.current
     var showRationaleDialog by remember { mutableStateOf(false) }
     var isPermanentlyDenied by remember { mutableStateOf(false) }
+    var initialCheckDone by remember { mutableStateOf(false) }
 
     fun checkPermission(): Boolean {
         val hasFine = ContextCompat.checkSelfPermission(
@@ -83,16 +84,13 @@ fun LocationPermissionHandler(
         }
     }
 
-    // Re-check permission when returning to app from settings
+    // Re-check permission when returning to app from settings (only dismisses rationale dialog when permission is granted)
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
+            if (event == Lifecycle.Event.ON_RESUME && initialCheckDone) {
                 if (checkPermission()) {
                     showRationaleDialog = false
                     onPermissionGranted()
-                } else {
-                    showRationaleDialog = true
-                    onPermissionDenied()
                 }
             }
         }
@@ -114,11 +112,12 @@ fun LocationPermissionHandler(
                 )
             )
         }
+        initialCheckDone = true
     }
 
     if (showRationaleDialog && !checkPermission()) {
         AlertDialog(
-            onDismissRequest = { /* Mandatory permission - cannot dismiss */ },
+            onDismissRequest = { /* Mandatory permission */ },
             icon = {
                 Icon(
                     imageVector = Icons.Default.LocationOff,
@@ -156,6 +155,7 @@ fun LocationPermissionHandler(
                             }
                             context.startActivity(intent)
                         } else {
+                            showRationaleDialog = false
                             permissionLauncher.launch(
                                 arrayOf(
                                     Manifest.permission.ACCESS_FINE_LOCATION,
